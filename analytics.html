@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html>
+            <head>
+            <title>Analytics</title>
+            <link rel="stylesheet" href="css/style.css" />
+            <meta name="viewport" content="initial-scale=1.0, user-scalable=no"/>
+            <script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=true"></script>
+            <script type="text/javascript" src="http://mbostock.github.com/d3/d3.v2.min.js"></script>
+            <link rel="stylesheet" href="http://mbostock.github.com/d3/ex/colorbrewer.css">
+            <style type="text/css">
+html, body, #map {
+	width: 100%;
+	height: 600px;
+	margin: 0;
+	padding: 0;
+}
+.stations {
+	position: absolute;
+}
+.stations, .stations svg.aaa {
+	position: absolute;
+}
+.stations border {
+	position: absolute;
+	stroke: black;
+	stroke-width: 2px;
+}
+.stations svg.aaa {
+	width: 60px;
+	height: 20px;
+	padding-right: 100px;
+	font: 10px sans-serif;
+}
+.stations circle {
+	fill: red;
+	stroke: black;
+	stroke-width: 1.5px;
+}
+.axis path, .axis line {
+	fill: none;
+	stroke: #000;
+	shape-rendering: crispEdges;
+}
+text {
+	font: 10px sans-serif;
+}
+form {
+	position: absolute;
+	right: 10px;
+	top: 10px;
+}
+#breakdown {
+	margin: auto;
+	position: relative;
+	width: 960px;	
+}
+</style>
+            </head>
+            <body>
+<div id="head" style="background-color:#102641; color:white; text-align:center; font-size:24px; padding:8px;">
+              <header>
+              	<strong>Problems Trending on Campus</strong>
+              </header>
+            </div>
+<div id="map"></div>
+<script type="text/javascript">
+        
+        // create map
+        var map = new google.maps.Map(d3.select("#map").node(), {
+          zoom: 16,
+          center: new google.maps.LatLng(38.99039, -76.94754),
+          mapTypeId: google.maps.MapTypeId.ROADMAP
+        });
+        
+        var data = [
+            { name: 'pt1', lng: -76.943, lat: 38.992 },
+            { name: 'pt2', lng: -76.949964, lat: 38.993576 },
+            { name: 'pt3', lng: -76.941703, lat: 38.988155 },
+            { name: 'pt4', lng: -76.944815, lat: 38.985970 },
+            { name: 'pt5', lng: -76.936133, lat: 38.989944 },
+            { name: 'pt6', lng: -121.78, lat: 36.93 },
+            { name: 'pt7', lng: -122.25, lat: 37.52 },
+            { name: 'pt8', lng: -122.82, lat: 38.5 },
+            { name: 'pt9', lng: -121.92, lat: 37.37 },
+            { name: 'pt10', lng: -122.37, lat: 37.62 },
+            { name: 'pt11', lng: -121.23, lat: 37.9 },
+        ];
+        
+        // Load the station data. When the data comes back, create an overlay.
+        var overlay = new google.maps.OverlayView();
+        
+        // Add the container when the overlay is added to the map.
+        overlay.onAdd = function() {
+          var layer = d3.select(this.getPanes().overlayLayer).append("div")
+                .attr("height", "100%")
+                .attr("width", "100%")
+                .attr("class", "stations")
+                .attr("id", "layer");
+          
+          layer[0][0].style.width = "1366px";
+          layer[0][0].parentNode.style.width = "100%";
+          layer[0][0].parentNode.style.height = "100%";
+          layer[0][0].parentNode.parentNode.style.width = "100%";
+          layer[0][0].parentNode.parentNode.style.height = "100%";
+          layer[0][0].parentNode.parentNode.parentNode.style.width = "100%";
+          layer[0][0].parentNode.parentNode.parentNode.style.height = "100%";
+          layer[0][0].parentNode.parentNode.parentNode.parentNode.style.width = "100%";
+          layer[0][0].parentNode.parentNode.parentNode.parentNode.style.height = "100%";
+          
+          // Draw each marker as a separate SVG element.
+          // We could use a single SVG, but what size would it have?
+          overlay.draw = function() {
+			  var jsonString = 
+			  '[{"name":"pt1","lng":-76.943, "lat": 38.992}, {"name":"pt2","lat":-76.949964, "lng": 38.993576}]';
+			
+			var jsonParsed = JSON.parse(jsonString);
+			console.log(jsonString);
+			console.log(jsonParsed);
+			  
+            var projection = this.getProjection(),
+                padding = 10;
+        
+            var marker = layer.selectAll("svg")
+                .data(data)
+                .each(transform) // update existing markers
+              .enter().append("svg:svg")
+                .each(transform)
+                .attr("class", "marker aaa")
+        	
+			var radius = 4.5; // vary the size of the circles base on # of incident reports
+            marker.append("svg:circle")
+                .attr("r", radius)
+                .attr("cx", padding )
+                .attr("cy", padding );
+        
+            // add a label.
+            marker.append("svg:text")
+                .attr("x", padding + 7)
+                .attr("y", padding)
+                .attr("dy", ".31em")
+                .text( function(d) { 
+                  return d.name; }
+                );
+        
+            var v = d3.geom.voronoi( translate(data) );
+            console.log( "v is :" );
+            console.log( v );
+            
+            var edges = layer.selectAll("path")
+                .data( v )
+              .enter().append("svg:svg").attr("width", "100%").attr("width","100%").style("position", "absolute")
+                .append("svg:path")
+                .attr( "d", function(d){
+                  var e = transform_path(d)
+                  var p = 'M' + e.join('L') + 'Z'
+                  console.log( 'PATH: ' + p)
+                  return p
+                }).attr("fill", "none").attr("stroke", "black")
+                ;
+
+            function translate(data) {
+              var d = []
+              for( var i=0; i<data.length; i++){
+                var c = [ data[i].lat, data[i].lng ]
+                d.push( c )
+              }
+              return d
+            }
+        
+            function _projection( lat, lng ) {
+              e = new google.maps.LatLng( lat, lng );
+              e = projection.fromLatLngToDivPixel(e);
+              return [ e.x - padding, e.y - padding]
+              // return [ e.x, e.y ]
+            }
+        
+            function transform(d) {
+              e = _projection( d.lat, d.lng )
+              console.log("marker " + d.lat +', ' + d.lng + " -> left: " + e[0] +", top: " + e[1] )
+              return d3.select(this)
+                  .style("left", e[0] + "px")
+                  .style("top", e[1] + "px");
+            }
+        
+            function transform_path(data) {
+              var d = []
+              console.log(data)
+              for( var i=0; i<data.length; i++) {
+                var c = _projection( data[i][0], data[i][1] )
+                console.log( ' path point: ' + JSON.stringify(data[i]) + ' -> left: ' + c[0] + ", top: " + c[1])
+                d.push( c )
+              }
+              // console.log(d)
+              return d
+            }
+            
+          };
+        };
+        
+        // Bind our overlay to the map…
+        overlay.setMap(map);
+    </script>
+    
+<p style="text-align:center; background-color: #B0C3DC; padding: 10px; color:black;">Problem Occurence Over Time</p>
+<div id="breakdown">
+<form>
+              <label>
+    <input type="radio" name="mode" value="grouped">
+    Grouped</label>
+              <label>
+    <input type="radio" name="mode" value="stacked" checked>
+    Stacked</label>
+            </form>
+<script src="http://d3js.org/d3.v3.min.js"></script> 
+<script>
+var n = 4, // number of layers
+    m = 58, // number of samples per layer
+    stack = d3.layout.stack(),
+    layers = stack(d3.range(n).map(function() { return bumpLayer(m, .1); })),
+    yGroupMax = d3.max(layers, function(layer) { return d3.max(layer, function(d) { return d.y; }); }),
+    yStackMax = d3.max(layers, function(layer) { return d3.max(layer, function(d) { return d.y0 + d.y; }); });
+
+var margin = {top: 40, right: 10, bottom: 20, left: 10},
+    width = 960 - margin.left - margin.right,
+    height = 500 - margin.top - margin.bottom;
+
+var x = d3.scale.ordinal()
+    .domain(d3.range(m))
+    .rangeRoundBands([0, width], .08);
+
+var y = d3.scale.linear()
+    .domain([0, yStackMax])
+    .range([height, 0]);
+
+var color = d3.scale.linear()
+    .domain([0, n - 1])
+    .range(["#aad", "#556"]);
+
+var xAxis = d3.svg.axis()
+    .scale(x)
+    .tickSize(0)
+    .tickPadding(6)
+    .orient("bottom");
+
+var svg = d3.select("#breakdown").append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+  .append("g")
+    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+var layer = svg.selectAll(".layer")
+    .data(layers)
+  .enter().append("g")
+    .attr("class", "layer")
+    .style("fill", function(d, i) { return color(i); });
+
+var rect = layer.selectAll("rect")
+    .data(function(d) { return d; })
+  .enter().append("rect")
+    .attr("x", function(d) { return x(d.x); })
+    .attr("y", height)
+    .attr("width", x.rangeBand())
+    .attr("height", 0);
+
+rect.transition()
+    .delay(function(d, i) { return i * 10; })
+    .attr("y", function(d) { return y(d.y0 + d.y); })
+    .attr("height", function(d) { return y(d.y0) - y(d.y0 + d.y); });
+
+svg.append("g")
+    .attr("class", "x axis")
+    .attr("transform", "translate(0," + height + ")")
+    .call(xAxis);
+
+d3.selectAll("input").on("change", change);
+
+var timeout = setTimeout(function() {
+  d3.select("input[value=\"grouped\"]").property("checked", true).each(change);
+}, 2000);
+
+function change() {
+  clearTimeout(timeout);
+  if (this.value === "grouped") transitionGrouped();
+  else transitionStacked();
+}
+
+function transitionGrouped() {
+  y.domain([0, yGroupMax]);
+
+  rect.transition()
+      .duration(500)
+      .delay(function(d, i) { return i * 10; })
+      .attr("x", function(d, i, j) { return x(d.x) + x.rangeBand() / n * j; })
+      .attr("width", x.rangeBand() / n)
+    .transition()
+      .attr("y", function(d) { return y(d.y); })
+      .attr("height", function(d) { return height - y(d.y); });
+}
+
+function transitionStacked() {
+  y.domain([0, yStackMax]);
+
+  rect.transition()
+      .duration(500)
+      .delay(function(d, i) { return i * 10; })
+      .attr("y", function(d) { return y(d.y0 + d.y); })
+      .attr("height", function(d) { return y(d.y0) - y(d.y0 + d.y); })
+    .transition()
+      .attr("x", function(d) { return x(d.x); })
+      .attr("width", x.rangeBand());
+}
+
+// Inspired by Lee Byron's test data generator.
+function bumpLayer(n, o) {
+
+  function bump(a) {
+    var x = 1 / (.1 + Math.random()),
+        y = 2 * Math.random() - .5,
+        z = 10 / (.1 + Math.random());
+    for (var i = 0; i < n; i++) {
+      var w = (i / n - y) * z;
+      a[i] += x * Math.exp(-w * w);
+    }
+  }
+
+  var a = [], i;
+  for (i = 0; i < n; ++i) a[i] = o + o * Math.random();
+  for (i = 0; i < 5; ++i) bump(a);
+  return a.map(function(d, i) { return {x: i, y: Math.max(0, d)}; });
+}
+</script>
+<p style="text-align:center;">Days Since Start</p>
+</div>
+<footer style="background:#000000; text-align: center; padding:8px;">
+    <a href="index.html" style="padding:15px;">Back To Main</a>
+</footer>
+</body>
+</html>
