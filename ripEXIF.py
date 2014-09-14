@@ -1,6 +1,6 @@
 from PIL import Image
 from PIL.ExifTags import TAGS
-import pprint
+from pprint import pprint
  
 def get_exif_data(fname):
     """Get embedded EXIF data from image file."""
@@ -17,4 +17,28 @@ def get_exif_data(fname):
         print 'IOERROR ' + fname
     return ret
 
-print get_exif_data("nonsense.jpg")
+def gps_dict_to_double(data):
+    latC = data.get(1, None)
+    latT = data.get(2, None)
+    longC = data.get(3, None)
+    longT = data.get(4, None)
+    lat = latT[0][0]/float(latT[0][1])
+    lat += latT[1][0]/float(latT[1][1])/60
+    lat += latT[2][0]/float(latT[2][1])/3600
+    long = longT[0][0]/float(longT[0][1])
+    long += longT[1][0]/float(longT[1][1])/60
+    long += longT[2][0]/float(longT[2][1])/3600       
+    if latC == 'S':
+        lat *= -1
+    if longC == 'W':
+        long *= -1
+    ret = (lat, long)
+    return ret
+
+def get_lat_long_from_image(imageName):
+    metadata = get_exif_data(imageName)
+    gpsData = metadata.get('GPSInfo', None)
+    if gpsData != None:
+        return gps_dict_to_double(gpsData)
+    else:
+        return None
