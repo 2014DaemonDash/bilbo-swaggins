@@ -1,5 +1,6 @@
 import json
 import glob
+import random
 from PIL import Image
 from PIL.ExifTags import TAGS
 from pprint import pprint
@@ -43,14 +44,16 @@ def get_lat_long_from_image(imageName):
     if gpsData != None:
         return gps_dict_to_double(gpsData)
     else:
-        return None
+        return (None, None)
 
 piglets = {}
+assbarns = {1:'Electrical',2:'Plumbing',3:'Furniture/Fixtures',4:'Miscellanious',5:'Security Concern'}
 i = 0
 
 for filename in glob.glob('*.jpg'):
+    dickbutt = get_lat_long_from_image(filename)
     i += 1
-    piglets[i] = get_lat_long_from_image(filename)
+    piglets['pt'+str(i)] = {'lat':dickbutt[0], 'log:':dickbutt[1], 'type':assbarns[random.randint(1,5)]}
 
 f = open('database.json','w')
 json = json.dump(piglets, f)
