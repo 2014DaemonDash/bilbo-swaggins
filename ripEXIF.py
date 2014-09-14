@@ -42,3 +42,5 @@ def get_lat_long_from_image(imageName):
         return gps_dict_to_double(gpsData)
     else:
         return None
+
+pprint(get_lat_long_from_image("5s.jpg"))
