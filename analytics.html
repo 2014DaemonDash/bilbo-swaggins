@@ -1,18 +1,19 @@
 <!DOCTYPE html>
 <html>
-            <head>
-            <title>Analytics</title>
-            <link rel="stylesheet" href="css/style.css" />
-            <meta name="viewport" content="initial-scale=1.0, user-scalable=no"/>
-            <script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=true"></script>
-            <script type="text/javascript" src="http://mbostock.github.com/d3/d3.v2.min.js"></script>
-            <link rel="stylesheet" href="http://mbostock.github.com/d3/ex/colorbrewer.css">
-            <style type="text/css">
+<head>
+<title>Analytics</title>
+<link rel="stylesheet" href="css/style.css" />
+<meta name="viewport" content="initial-scale=1.0, user-scalable=no"/>
+<script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=true"></script>
+<script type="text/javascript" src="http://mbostock.github.com/d3/d3.v2.min.js"></script>
+<link rel="stylesheet" href="http://mbostock.github.com/d3/ex/colorbrewer.css">
+<style type="text/css">
 html, body, #map {
 	width: 100%;
 	height: 600px;
 	margin: 0;
 	padding: 0;
+	background-color: #FFFFFF;
 }
 .stations {
 	position: absolute;
@@ -52,39 +53,55 @@ form {
 #breakdown {
 	margin: auto;
 	position: relative;
-	width: 960px;	
+	width: 960px;
 }
 </style>
-            </head>
-            <body>
-<div id="head" style="background-color:#102641; color:white; text-align:center; font-size:24px; padding:8px;">
-              <header>
-              	<strong>Problems Trending on Campus</strong>
-              </header>
-            </div>
-<div id="map"></div>
-<script type="text/javascript">
-        
+</head>
+<div id="head" style="background-color:#39578B; color:white; text-align:center; padding: 3px;">
+  <header><h2><strong>Problems Trending on Campus</strong></h2></header>
+</div>
+<body>
+<div style="background-color:#FFFFFF; margin: auto; position: relative; width: 1300px;">
+  <div id="map"></div>
+  <script type="text/javascript">
+		
         // create map
         var map = new google.maps.Map(d3.select("#map").node(), {
           zoom: 16,
-          center: new google.maps.LatLng(38.99039, -76.94754),
+          center: new google.maps.LatLng(38.986333, -76.940308),
           mapTypeId: google.maps.MapTypeId.ROADMAP
         });
         
-        var data = [
-            { name: 'pt1', lng: -76.943, lat: 38.992 },
-            { name: 'pt2', lng: -76.949964, lat: 38.993576 },
-            { name: 'pt3', lng: -76.941703, lat: 38.988155 },
-            { name: 'pt4', lng: -76.944815, lat: 38.985970 },
-            { name: 'pt5', lng: -76.936133, lat: 38.989944 },
-            { name: 'pt6', lng: -121.78, lat: 36.93 },
-            { name: 'pt7', lng: -122.25, lat: 37.52 },
-            { name: 'pt8', lng: -122.82, lat: 38.5 },
-            { name: 'pt9', lng: -121.92, lat: 37.37 },
-            { name: 'pt10', lng: -122.37, lat: 37.62 },
-            { name: 'pt11', lng: -121.23, lat: 37.9 },
-        ];
+        var jsonString = 
+			  '[{"lat": 38.98358611111111, "type": "Plumbing", "lng": -76.94084166666667}, {"lat": 38.98353888888889, "type": "Electrical", "lng": -76.94335277777778}, {"lat": 38.983561111111115, "type": "Plumbing", "lng": -76.94345}, {"lat": 38.98336388888889, "type": "Plumbing", "lng": -76.94344444444445}, {"lat": 38.98856111111111, "type": "Security Concern", "lng": -76.94024722222223}, {"lat": 38.98857777777778, "type": "Security Concern", "lng": -76.93976666666667}, {"lat": 38.98845277777778, "type": "Furniture/Fixtures", "lng": -76.93972777777778}, {"lat": 38.98625277777778, "type": "Electrical", "lng": -76.93929166666668}, {"lat": 38.98952222222222, "type": "Plumbing", "lng": -76.94029166666667}, {"lat": 38.98925, "type": "Miscellanious", "lng": -76.94010833333334}, {"lat": 38.983336111111115, "type": "Security Concern", "lng": -76.94489166666666}, {"lat": 38.986272222222226, "type": "Furniture/Fixtures", "lng": -76.94532777777778}, {"lat": 38.98616666666667, "type": "Electrical", "lng": -76.944725}, {"lat": 38.99357222222222, "type": "Miscellanious", "lng": -76.94985277777778}, {"lat": 38.991847222222226, "type": "Miscellanious", "lng": -76.94702777777778}, {"lat": 38.991416666666666, "type": "Electrical", "lng": -76.94446666666667}, {"lat": null, "type": "Security Concern", "lng": null}, {"lat": 38.989802777777776, "type": "Electrical", "lng": -76.93741666666666}, {"lat": 38.98965555555556, "type": "Security Concern", "lng": -76.93655277777778}, {"lat": 38.989934, "type": "Electrical", "lng": -76.936065}, {"location": "Cumberland Hall", "type": "Plumbing"}, {"location": "Cumberland Hall", "type": "Electrical"}, {"location": "Washington Hall", "type": "Plumbing"}, {"location": "Cumberland Hall", "type": "Plumbing"}, {"location": "Hagerstown", "type": "Security Concern"}, {"location": "Hagerstown", "type": "Security Concern"}, {"location": "Hagerstown", "type": "Furniture/Fixtures"}, {"location": "Hagerstown", "type": "Electrical"}, {"location": "Hagerstown", "type": "Plumbing"}, {"location": "Hagerstown", "type": "Miscellanious"}, {"location": "Hagerstown", "type": "Security Concern"}, {"location": "Washington Hall", "type": "Security Concern"}, {"location": "Washington Hall", "type": "Furniture/Fixtures"}, {"location": "Washington Hall", "type": "Electrical"}, {"location": "Washington Hall", "type": "Miscellanious"}, {"location": "Washington Hall", "type": "Miscellanious"}, {"location": "Washington Hall", "type": "Electrical"}, {"location": null, "type": "Security Concern"}, {"location": "Washington Hall", "type": "Electrical"}, {"location": "Washington Hall", "type": "Security Concern"}]';
+			  
+		var data = JSON.parse(jsonString);
+		
+		var locationTally = [];
+			var typeTally = [];
+			var gpsPoints = [];
+			
+			data.forEach(function(node){
+				if (node.location){
+					if (!locationTally["\"" + node.location + "\""]) 
+						locationTally["\"" + node.location + "\""] = 1;
+					else 
+						locationTally["\"" + node.location + "\""]+=1;
+				}
+				if (node.type){
+					if (!typeTally["\"" + node.type + "\""]) 
+						typeTally["\"" + node.type + "\""] = 1;
+					else 
+						typeTally["\"" + node.type + "\""]+=1;
+				}
+				if (node.lat){
+					gpsPoints.push(node);
+				}
+			});
+			
+			console.log(locationTally);
+			console.log(typeTally);
+			console.log(gpsPoints);
         
         // Load the station data. When the data comes back, create an overlay.
         var overlay = new google.maps.OverlayView();
@@ -110,12 +127,11 @@ form {
           // Draw each marker as a separate SVG element.
           // We could use a single SVG, but what size would it have?
           overlay.draw = function() {
-			  var jsonString = 
-			  '[{"name":"pt1","lng":-76.943, "lat": 38.992}, {"name":"pt2","lat":-76.949964, "lng": 38.993576}]';
+			  
+			  
+			  /*{"pt13": {"lat": 38.98358611111111, "type": "Plumbing", "log:": -76.94084166666667}, "pt12": {"lat": 38.98353888888889, "type": "Electrical", "log:": -76.94335277777778}, "pt11": {"lat": 38.983561111111115, "type": "Plumbing", "log:": -76.94345}, "pt10": {"lat": 38.98336388888889, "type": "Plumbing", "log:": -76.94344444444445}, "pt17": {"lat": 38.98856111111111, "type": "Security Concern", "log:": -76.94024722222223}, "pt16": {"lat": 38.98857777777778, "type": "Security Concern", "log:": -76.93976666666667}, "pt15": {"lat": 38.98845277777778, "type": "Furniture/Fixtures", "log:": -76.93972777777778}, "pt14": {"lat": 38.98625277777778, "type": "Electrical", "log:": -76.93929166666668}, "pt19": {"lat": 38.98952222222222, "type": "Plumbing", "log:": -76.94029166666667}, "pt18": {"lat": 38.98925, "type": "Miscellanious", "log:": -76.94010833333334}, "pt20": {"lat": 38.98999444444445, "type": "Security Concern", "log:": -76.93613333333333}, "pt9": {"lat": 38.983336111111115, "type": "Security Concern", "log:": -76.94489166666666}, "pt8": {"lat": 38.986272222222226, "type": "Furniture/Fixtures", "log:": -76.94532777777778}, "pt7": {"lat": 38.98616666666667, "type": "Electrical", "log:": -76.944725}, "pt6": {"lat": 38.99357222222222, "type": "Miscellanious", "log:": -76.94985277777778}, "pt5": {"lat": 38.991847222222226, "type": "Miscellanious", "log:": -76.94702777777778}, "pt4": {"lat": 38.991416666666666, "type": "Electrical", "log:": -76.94446666666667}, "pt3": {"lat": null, "type": "Security Concern", "log:": null}, "pt2": {"lat": 38.989802777777776, "type": "Electrical", "log:": -76.93741666666666}, "pt1": {"lat": 38.98965555555556, "type": "Security Concern", "log:": -76.93655277777778}}*/
 			
-			var jsonParsed = JSON.parse(jsonString);
-			console.log(jsonString);
-			console.log(jsonParsed);
+			
 			  
             var projection = this.getProjection(),
                 padding = 10;
@@ -125,9 +141,9 @@ form {
                 .each(transform) // update existing markers
               .enter().append("svg:svg")
                 .each(transform)
-                .attr("class", "marker aaa")
+                .attr("class", "marker aaa");
         	
-			var radius = 4.5; // vary the size of the circles base on # of incident reports
+			var radius = 5.0; // vary the size of the circles base on # of incident reports
             marker.append("svg:circle")
                 .attr("r", radius)
                 .attr("cx", padding )
@@ -139,25 +155,13 @@ form {
                 .attr("y", padding)
                 .attr("dy", ".31em")
                 .text( function(d) { 
-                  return d.name; }
+                  return d.type; }
                 );
         
-            var v = d3.geom.voronoi( translate(data) );
+            var v = d3.geom.voronoi( translate(gpsPoints) );
             console.log( "v is :" );
             console.log( v );
             
-            var edges = layer.selectAll("path")
-                .data( v )
-              .enter().append("svg:svg").attr("width", "100%").attr("width","100%").style("position", "absolute")
-                .append("svg:path")
-                .attr( "d", function(d){
-                  var e = transform_path(d)
-                  var p = 'M' + e.join('L') + 'Z'
-                  console.log( 'PATH: ' + p)
-                  return p
-                }).attr("fill", "none").attr("stroke", "black")
-                ;
-
             function translate(data) {
               var d = []
               for( var i=0; i<data.length; i++){
@@ -200,19 +204,18 @@ form {
         // Bind our overlay to the map…
         overlay.setMap(map);
     </script>
-    
-<p style="text-align:center; background-color: #B0C3DC; padding: 10px; color:black;">Problem Occurence Over Time</p>
-<div id="breakdown">
-<form>
-              <label>
-    <input type="radio" name="mode" value="grouped">
-    Grouped</label>
-              <label>
-    <input type="radio" name="mode" value="stacked" checked>
-    Stacked</label>
-            </form>
-<script src="http://d3js.org/d3.v3.min.js"></script> 
-<script>
+  <h2 style="text-align:center; background-color: #B0C3DC; padding: 10px; color:black;">Problem Occurence Over Time</h2>
+  <div id="breakdown">
+    <form>
+      <label>
+        <input type="radio" name="mode" value="grouped">
+        Grouped</label>
+      <label>
+        <input type="radio" name="mode" value="stacked" checked>
+        Stacked</label>
+    </form>
+    <script src="http://d3js.org/d3.v3.min.js"></script> 
+    <script>
 var n = 4, // number of layers
     m = 58, // number of samples per layer
     stack = d3.layout.stack(),
@@ -329,10 +332,17 @@ function bumpLayer(n, o) {
   return a.map(function(d, i) { return {x: i, y: Math.max(0, d)}; });
 }
 </script>
-<p style="text-align:center;">Days Since Start</p>
+    <p style="text-align:center;">Frequency of Reports per Day</p>
+  </div>
 </div>
-<footer style="background:#000000; text-align: center; padding:8px;">
-    <a href="index.html" style="padding:15px;">Back To Main</a>
-</footer>
+
+<div style="margin: 0 auto; text-align: center;">
+<a class="twitter-timeline" href="https://twitter.com/hashtag/umd4work" data-widget-id="511131876757495809">#umd4work Tweets</a>
+<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+</div>
+
 </body>
+<footer style="background:#292F3E; text-align: center; padding:8px;"> 
+<div style="padding:15px;">Back To Main</div>
+    <a href="index.html"><img src="images/sustain.jpg" style="width:50px; border-radius:25px;"></a> </footer>
 </html>
